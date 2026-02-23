@@ -1,4 +1,11 @@
-class JsonParser{
+package com.siddharth;
+
+/**
+ * Hello world!
+ *
+ */
+public class App 
+{
     private String input;
     private int pos=0;
     String parseString(){
@@ -40,7 +47,7 @@ class JsonParser{
         }
     }
     public static void main(String [] args){
-    JsonParser p=new JsonParser();
+    App p=new App();
     p.input="\"hello\"";
     p.pos=0;
     System.out.println(p.parseString());
