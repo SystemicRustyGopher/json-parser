@@ -1,0 +1,25 @@
+{
+  "name": "json-parser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+   "test": "vitest run",
+   "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SystemicRustyGopher/json-parser.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SystemicRustyGopher/json-parser/issues"
+  },
+  "homepage": "https://github.com/SystemicRustyGopher/json-parser#readme",
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}
