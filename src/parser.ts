@@ -50,6 +50,7 @@ export class JsonParser{
     }
     const ch=this.current();
     if(ch==='"') return this.parseString();
+    if(ch==='-' || (ch>='0' && ch<='9')) return this.parseInteger();
 
     throw new SyntaxError(
       `Unexpected character '${ch}' at position ${this.pos}`
@@ -81,6 +82,59 @@ export class JsonParser{
     return result;
   }
 
+  private parseInteger(): number{
+    let numStr="";
+    if(this.current()==='-'){
+      numStr+=this.advance();
+    }
+    if(this.isAtEnd()){
+      throw new SyntaxError("Unexpected end of output");
+    }
+    if(this.current()==="0"){
+      numStr+=this.advance();
+      if(!this.isAtEnd() && /[0-9]/.test(this.current())){
+        throw new SyntaxError("Leading zeros not expected");
+      }
+    }else if(/[1-9]/.test(this.current())){
+      numStr+=this.advance()
+      while(!this.isAtEnd() && /[0-9]/.test(this.current())){
+        numStr+=this.advance();
+      }
+    }else{
+      throw new SyntaxError(`Expected digit but got '${this.current()}' `);
+    }
+
+    if(!this.isAtEnd() && this.current()==="."){
+      numStr+=this.advance();
+      if(this.isAtEnd() || !/[0-9]/.test(this.current())){
+        throw new SyntaxError("Expected digit after . at '${this.pos}'");
+      }
+       while(!this.isAtEnd() && /[0-9]/.test(this.current())){
+        numStr+=this.advance();
+       }
+
+    }
+
+    if(!this.isAtEnd() && (this.current()==="e" || this.current()==="E")){
+      numStr+=this.advance();
+      if(!this.isAtEnd() && (this.current()==="+" || this.current()==="-")){
+        numStr+=this.advance();
+      }
+      if(this.isAtEnd() || !/[0-9]/.test(this.current())){
+        throw new SyntaxError(
+          `Expected digit in exponent at position ${this.pos}`
+        );
+      }
+
+      while(!this.isAtEnd() && /[0-9]/.test(this.current())){
+        numStr+=this.advance();
+      }
+    }
+
+   
+
+    return Number(numStr);
+  }
   private parseEscape(): string{
     this.advance();
     if(this.isAtEnd()){
