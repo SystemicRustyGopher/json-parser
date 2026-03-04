@@ -94,3 +94,63 @@ describe('Json number parsing - exponents', () => {
     expect(() => JsonParser.parse("1e+")).toThrow(SyntaxError);
   });
 });
+
+describe('Json array parsing', () => {
+  it("parses empty array",() =>{
+    expect(JsonParser.parse("[]")).toEqual([]);
+  });
+  it("parses single element",() =>{
+    expect(JsonParser.parse("[1]")).toEqual([1]);
+  });
+  it("parses multiple elements",() =>{
+    expect(JsonParser.parse("[1,2,3]")).toEqual([1,2,3]);
+  });
+  it("parses mixed types",() =>{
+        expect(JsonParser.parse('[1,"hello",null]')).toEqual([1,"hello",null]);
+  });
+  it("parses nested arrays",() =>{
+        expect(JsonParser.parse("[[1,2],[3,4]]")).toEqual([[1,2],[3,4]]);
+  });
+  it("handles whitespace variations",() =>{
+        expect(JsonParser.parse("[[1,  2],[3 ,4]]")).toEqual([[1,2],[3,4]]);
+  });
+   it("rejects trailing commans",() =>{
+        expect(() => JsonParser.parse("[[1,  2],[3 ,4]],")).toThrow(SyntaxError);
+  });
+    it("rejects unclosed error",() =>{
+        expect(() => JsonParser.parse("[[1,  2],[3 ,4]")).toThrow(SyntaxError);
+  });
+   it("rejects missing comma",() =>{
+        expect(() => JsonParser.parse("[[1,  2][3 ,4]")).toThrow(SyntaxError);
+  });
+});
+
+  describe('Json object parsing', () => {
+  it("parses empty object",() =>{
+    expect(JsonParser.parse("{}")).toEqual({});
+  });
+  it("parses single key",() =>{
+    expect(JsonParser.parse('{"a":1}')).toEqual({a:1});
+  });
+  it("parses multiple keys",() =>{
+    expect(JsonParser.parse('{"a":1,"b":2}')).toEqual({a:1,b:2});
+  });
+  it("parses mixed keys",() =>{
+        expect(JsonParser.parse('{"a":1,"b":[2,3],"c":null}')).toEqual({a:1,b:[2,3],c:null});
+  });
+  it("parses nested objects",() =>{
+        expect(JsonParser.parse('{"a":{"b":1}}')).toEqual({"a":{"b":1}});
+  });
+  it("handles whitespace variations",() =>{
+        expect(JsonParser.parse('{"a"   :    1}')).toEqual({a:1});
+  });
+   it("rejects trailing commans",() =>{
+        expect(() => JsonParser.parse('{"a":1},')).toThrow(SyntaxError);
+  });
+    it("rejects unclosed error",() =>{
+        expect(() => JsonParser.parse('{"a":1')).toThrow(SyntaxError);
+  });
+   it("rejects missing comma",() =>{
+        expect(() => JsonParser.parse('{"a":1}{"b":2}')).toThrow(SyntaxError);
+  });
+});

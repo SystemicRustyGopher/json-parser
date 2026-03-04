@@ -51,6 +51,12 @@ export class JsonParser{
     const ch=this.current();
     if(ch==='"') return this.parseString();
     if(ch==='-' || (ch>='0' && ch<='9')) return this.parseInteger();
+    if(ch==='t') return this.parseTrue();
+    if(ch==='f') return this.parseFalse();
+    if(ch==='n') return this.parseNull();
+    if(ch==='[') return this.parseArray();
+    if(ch==='{') return this.parseObject();
+
 
     throw new SyntaxError(
       `Unexpected character '${ch}' at position ${this.pos}`
@@ -173,6 +179,102 @@ export class JsonParser{
       hex+=this.advance();
     }
       return String.fromCharCode(parseInt(hex,16));
+  }
+
+  private parseTrue(): boolean{
+    this.expect("t");
+    this.expect("r");
+    this.expect("u");
+    this.expect("e");
+    return true;
+  }
+
+  private parseFalse(): boolean{
+    this.expect("f");
+    this.expect("a");
+    this.expect("l");
+    this.expect("s");
+    this.expect("e");
+    return false;
+  }
+
+  private parseNull(): null{
+    this.expect("n");
+    this.expect("u");
+    this.expect("l");
+    this.expect("l");
+    return null;
+  }
+
+  private parseArray(): any[]{
+    this.expect('[');
+    if(!this.isAtEnd() && this.current()===']'){
+    this.advance();
+     return [];
+    }
+    const arr:any[]=[];
+    arr.push(this.parseValue());
+    this.skipWhitespace();
+    while(!this.isAtEnd()){
+      if(this.current()===']'){
+        this.advance();
+        return arr;
+      }else if(this.current()===','){
+        this.advance();
+        this.skipWhitespace();
+        if(!this.isAtEnd() && this.current()===']'){
+          throw new SyntaxError("Trailing comma in array");
+        }
+        arr.push(this.parseValue());
+        this.skipWhitespace();
+      }else{
+        throw new SyntaxError("Unexpected object found at '${this.pos()}'");
+      }
+      
+      if(this.isAtEnd() && this.current()!==']'){
+        throw new SyntaxError("Unexpected object found at '${this.pos()}'");
+      }
+    }
+    throw new SyntaxError("unterminated array");
+  }
+
+  private parseKeyValue(obj: Record<string,unknown>): void{
+    this.skipWhitespace();
+    const key=this.parseString();
+    this.skipWhitespace();
+    this.expect(':');
+    const value=(this.parseValue());
+    obj[key]=value;
+  }
+  private parseObject(): object{
+    this.expect('{');
+    this.skipWhitespace();
+    if(!this.isAtEnd() && this.current()==='}'){
+      this.advance();
+      return {};
+    }
+    const obj:Record<string,unknown>={}
+    this.parseKeyValue(obj);
+    this.skipWhitespace();
+
+    while(!this.isAtEnd()){
+      if(this.current()==='}'){
+        this.advance();
+        return obj;
+      }else if(this.current()===','){
+        this.advance();
+        this.skipWhitespace();
+        if(!this.isAtEnd() && this.current()==='}'){
+          throw new SyntaxError("trailing comma in obj");
+        }
+        this.parseKeyValue(obj);
+        this.skipWhitespace();
+      }else{
+        throw new SyntaxError("Unexpected obj");
+      }
+    }
+
+        throw new SyntaxError("unterminated object");
   }
 }
 
